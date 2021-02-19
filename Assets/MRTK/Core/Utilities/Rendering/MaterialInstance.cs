@@ -86,7 +86,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
 
             if (autoDestroy && materialOwners.Count == 0)
             {
-                DestorySafe(this);
+                DestroySafe(this);
 
                 // OnDestroy not called on inactive objects
                 if (!gameObject.activeInHierarchy)
@@ -99,18 +99,12 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
         /// <summary>
         /// Returns the first instantiated Material assigned to the renderer, similar to <see href="https://docs.unity3d.com/ScriptReference/Renderer-material.html">Renderer.material</see>.
         /// </summary>
-        public Material Material
-        {
-            get { return AcquireMaterial(); }
-        }
+        public Material Material => AcquireMaterial();
 
         /// <summary>
         /// Returns all the instantiated materials of this object, similar to <see href="https://docs.unity3d.com/ScriptReference/Renderer-materials.html">Renderer.materials</see>.
         /// </summary>
-        public Material[] Materials
-        {
-            get { return AcquireMaterials(); }
-        }
+        public Material[] Materials => AcquireMaterials();
 
         private Renderer CachedRenderer
         {
@@ -119,17 +113,32 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
                 if (cachedRenderer == null)
                 {
                     cachedRenderer = GetComponent<Renderer>();
+                    cachedSharedMaterials = cachedRenderer.sharedMaterials;
+
+                    return cachedRenderer;
                 }
 
                 return cachedRenderer;
             }
         }
 
+        private Material[] CachedSharedMaterials
+        {
+            get => cachedSharedMaterials;
+            set
+            {
+                cachedSharedMaterials = value;
+                cachedRenderer.sharedMaterials = value;
+            }
+        }
+
+
         private Renderer cachedRenderer = null;
 
         [SerializeField, HideInInspector]
         private Material[] defaultMaterials = null;
         private Material[] instanceMaterials = null;
+        private Material[] cachedSharedMaterials = null;
         private bool initialized = false;
         private bool materialsInstanced = false;
         private readonly HashSet<Object> materialOwners = new HashSet<Object>();
@@ -146,7 +155,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
         private void Update()
         {
             // If the materials get changed via outside of MaterialInstance.
-            var sharedMaterials = CachedRenderer.sharedMaterials;
+            var sharedMaterials = CachedSharedMaterials;
 
             if (!MaterialsMatch(sharedMaterials, instanceMaterials))
             {
@@ -191,7 +200,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
         {
             if (CachedRenderer != null && defaultMaterials != null)
             {
-                CachedRenderer.sharedMaterials = defaultMaterials;
+                CachedSharedMaterials = defaultMaterials;
             }
 
             DestroyMaterials(instanceMaterials);
@@ -200,6 +209,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
 
         #endregion MonoBehaviour Implementation
 
+
         private void Initialize()
         {
             if (!initialized && CachedRenderer != null)
@@ -207,11 +217,11 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
                 // Cache the default materials if ones do not already exist.
                 if (!HasValidMaterial(defaultMaterials))
                 {
-                    defaultMaterials = CachedRenderer.sharedMaterials;
+                    defaultMaterials = CachedSharedMaterials;
                 }
                 else if (!materialsInstanced) // Restore the clone to its initial state.
                 {
-                    CachedRenderer.sharedMaterials = defaultMaterials;
+                    CachedSharedMaterials = defaultMaterials;
                 }
 
                 initialized = true;
@@ -222,7 +232,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
         {
             if (CachedRenderer != null)
             {
-                if (!MaterialsMatch(CachedRenderer.sharedMaterials, instanceMaterials))
+                if (!MaterialsMatch(CachedSharedMaterials, instanceMaterials))
                 {
                     CreateInstances();
                 }
@@ -239,7 +249,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
 
             if (CachedRenderer != null && instanceMaterials != null)
             {
-                CachedRenderer.sharedMaterials = instanceMaterials;
+                CachedSharedMaterials = instanceMaterials;
             }
 
             materialsInstanced = true;
@@ -295,7 +305,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
             {
                 for (var i = 0; i < materials.Length; ++i)
                 {
-                    DestorySafe(materials[i]);
+                    DestroySafe(materials[i]);
                 }
             }
         }
@@ -321,7 +331,7 @@ namespace Microsoft.MixedReality.Toolkit.Rendering
             return false;
         }
 
-        private static void DestorySafe(UnityEngine.Object toDestroy)
+        private static void DestroySafe(Object toDestroy)
         {
             if (toDestroy != null)
             {
