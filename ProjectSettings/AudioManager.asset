@@ -3,6 +3,7 @@
 --- !u!11 &1
 AudioManager:
   m_ObjectHideFlags: 0
+  serializedVersion: 2
   m_Volume: 1
   Rolloff Scale: 1
   Doppler Factor: 1
@@ -11,7 +12,9 @@ AudioManager:
   m_DSPBufferSize: 1024
   m_VirtualVoiceCount: 512
   m_RealVoiceCount: 32
-  m_SpatializerPlugin: MS HRTF Spatializer
+  m_EnableOutputSuspension: 1
+  m_SpatializerPlugin: 
   m_AmbisonicDecoderPlugin: 
   m_DisableAudio: 0
   m_VirtualizeEffects: 1
+  m_RequestedDSPBufferSize: 1024
