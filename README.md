@@ -20,9 +20,9 @@ MRTK-Unity is a Microsoft-driven project that provides a set of components and f
 
 # Getting started with MRTK
 
-If you're new to MRTK or Mixed Reality development in Unity, **we recommend you start at the beginning of our** [Unity development journey](https://docs.microsoft.com/windows/mixed-reality/unity-development-overview?tabs=mrtk%2Chl2) in the Microsoft Docs. The Unity development journey is specifically tailored to walk new developers through the installation, core concepts, and usage of MRTK.
+If you're new to MRTK or Mixed Reality development in Unity, we recommend you start with our **[Microsoft Learn module](https://docs.microsoft.com/learn/modules/mixed-reality-toolkit-project-unity/)** or the **[Unity development journey](https://docs.microsoft.com/windows/mixed-reality/unity-development-overview?tabs=mrtk%2Chl2)** in the Microsoft Docs. The Unity development journey is specifically tailored to walk new developers through the installation, core concepts, and usage of MRTK.
 
-| IMPORTANT: The Unity development journey currently uses **MRTK version 2.4.0** and **Unity 2019.4**. |
+| IMPORTANT: The Unity development journey currently uses **MRTK version 2.7** and **Unity 2020.3**. |
 | --- |
 
 If you're an experienced Mixed Reality or MRTK developer, check the links in the next section for the newest packages and release notes.
