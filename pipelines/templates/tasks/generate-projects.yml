@@ -4,12 +4,7 @@ parameters:
   UnityVersion: ""
 
 steps:
-- powershell: |
-    # Some machines require that the protocol be explicitly set to Tls12
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Install-Module -Name UnitySetup -Scope CurrentUser -Force
-  displayName: Install unitysetup.powershell
-
+# IMPORTANT: Ensure unitysetup.powershell is installed prior to running this template
 - powershell: |
     $logFile = New-Item -Path "$(Build.ArtifactStagingDirectory)\build\projectgeneration_log.log" -ItemType File -Force
 

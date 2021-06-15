@@ -18,6 +18,7 @@ steps:
     parameters:
       Arch: 'x64'
       Platform: 'Standalone'
+      PublishArtifacts: true
       UnityVersion: ${{ parameters.UnityVersion }}
 
 # Tests should run earlier in the process, so that engineers can get test failure

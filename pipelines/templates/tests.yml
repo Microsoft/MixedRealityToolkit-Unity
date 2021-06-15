@@ -5,27 +5,38 @@ parameters:
 
 steps:
 - powershell: |
-    $UnityPath = ${Env:${{ parameters.UnityVersion }}}
-    $editor = Get-ChildItem $UnityPath -Filter 'Unity.exe' -Recurse | Select-Object -First 1 -ExpandProperty FullName
+    # Some machines require that the protocol be explicitly set to Tls12
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Install-Module -Name UnitySetup -Scope CurrentUser -Force
+  displayName: Install unitysetup.powershell
 
+- powershell: |
     Write-Host "======================= EditMode Tests ======================="
 
     $logFile = New-Item -Path .\editmode-test-run.log -ItemType File -Force
 
-    $proc = Start-Process -FilePath "$editor" -ArgumentList "-projectPath $(Get-Location) -runTests -testPlatform EditMode -batchMode -buildTarget StandaloneWindows -logFile $($logFile.Name) -editorTestsResultFile .\test-editmode-default.xml" -PassThru
-    $ljob = Start-Job -ScriptBlock { param($log) Get-Content "$log" -Wait } -ArgumentList $logFile.FullName
-
-    while (-not $proc.HasExited -and $ljob.HasMoreData)
-    {
-        Receive-Job $ljob
-        Start-Sleep -Milliseconds 200
+    # Uses unitysetup.powershell
+    try {
+        Start-UnityEditor -Project "$(Get-Location)" -Version ${{ parameters.UnityVersion }} -RunTests -TestPlatform EditMode -EditorTestsResultFile ".\test-editmode-default.xml" -BatchMode -Wait -LogFile "$($logFile.FullName)" -BuildTarget StandaloneWindows64 -AdditionalArguments "-CacheServerIPAddress ${Env:COG-UnityCache-WUS2-01}"
     }
-    Receive-Job $ljob
+    finally {
+        if (Test-Path $logFile.FullName)
+        {
+            Write-Output '====================================================='
+            Write-Output '           Begin Unity Player Log                    '
+            Write-Output '====================================================='
 
-    Stop-Job $ljob
+            Get-Content $logFile.FullName
 
-    Remove-Job $ljob
-    Stop-Process $proc
+            Write-Output '====================================================='
+            Write-Output '           End Unity Player Log                      '
+            Write-Output '====================================================='
+        }
+        else
+        {
+            Write-Output 'Unity Player Log Missing!'
+        }
+    }
   displayName: 'Run EditMode tests'
 
 - powershell: |

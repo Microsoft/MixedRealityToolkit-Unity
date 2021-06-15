@@ -164,12 +164,17 @@ steps:
   enabled: ${{ parameters.PublishArtifacts }}
   displayName: Publish ${{ parameters.Platform }} ${{ parameters.Arch }} (${{ parameters.PackagingDir }}) ${{ parameters.ScriptingBackend }}
   inputs:
-    ArtifactName: 'mrtk-build-${{ parameters.Arch }}'
-    # The final location of the generated package depends on the type of scripting backend it's built against.
-    # For the default scripting backend (IL2CPP) the naming of the appx follows the form below:
-    ${{ if eq(parameters.ScriptingBackend, 'default') }}:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\build\${{ parameters.Platform }}_${{ parameters.Arch }}_${{ parameters.ScriptingBackend }}\AppPackages\MixedRealityToolkit\MixedRealityToolkit_$(MRTKVersion).0_${{ parameters.PackagingDir }}_Master_Test'
-    # For .NET scripting backends, the naming is slightly different (mainly the AppPackages and MixedRealityToolkit folder
-    # names are reversed, and the Architecture is part of the AppX name)
-    ${{ if eq(parameters.ScriptingBackend, '.NET') }}:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\build\${{ parameters.Platform }}_${{ parameters.Arch }}_${{ parameters.ScriptingBackend }}\MixedRealityToolkit\AppPackages\MixedRealityToolkit_$(MRTKVersion).0_${{ parameters.Arch }}_Master_Test'
+    ${{ if eq(parameters.Platform, 'Standalone') }}:
+      ArtifactName: 'mrtk-exe-${{ parameters.Arch }}'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\build\${{ parameters.Platform }}_${{ parameters.Arch }}_${{ parameters.ScriptingBackend }}'
+
+    ${{ if eq(parameters.Platform, 'UWP') }}:
+      ArtifactName: 'mrtk-uwp-${{ parameters.Arch }}'
+      # The final location of the generated package depends on the type of scripting backend it's built against.
+      # For the default scripting backend (IL2CPP) the naming of the appx follows the form below:
+      ${{ if eq(parameters.ScriptingBackend, 'default') }}:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)\build\${{ parameters.Platform }}_${{ parameters.Arch }}_${{ parameters.ScriptingBackend }}\AppPackages\MixedRealityToolkit\MixedRealityToolkit_$(MRTKVersion).0_${{ parameters.PackagingDir }}_Master_Test'
+      # For .NET scripting backends, the naming is slightly different (mainly the AppPackages and MixedRealityToolkit folder
+      # names are reversed, and the Architecture is part of the AppX name)
+      ${{ if eq(parameters.ScriptingBackend, '.NET') }}:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)\build\${{ parameters.Platform }}_${{ parameters.Arch }}_${{ parameters.ScriptingBackend }}\MixedRealityToolkit\AppPackages\MixedRealityToolkit_$(MRTKVersion).0_${{ parameters.Arch }}_Master_Test'

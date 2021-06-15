@@ -4,6 +4,12 @@ parameters:
   UnityVersion: ""
 
 steps:
+- powershell: |
+    # Some machines require that the protocol be explicitly set to Tls12
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Install-Module -Name UnitySetup -Scope CurrentUser -Force
+  displayName: Install unitysetup.powershell
+
 - template: tasks/generate-projects.yml
   parameters:
     UnityVersion: ${{ parameters.UnityVersion }}
