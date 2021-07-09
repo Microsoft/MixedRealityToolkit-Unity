@@ -254,31 +254,35 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
             webRequest.disposeCertificateHandlerOnDispose = disposeCertificateHandlerOnDispose;
             await webRequest.SendWebRequest();
 
+            long responseCode = webRequest.responseCode;
+            Func<byte[]> downloadHandlerDataAction = () => webRequest.downloadHandler?.data;
+
 #if UNITY_2020_1_OR_NEWER
             if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
 #else
             if (webRequest.isNetworkError || webRequest.isHttpError)
 #endif // UNITY_2020_1_OR_NEWER
             {
-                if (webRequest.responseCode == 401) { return new Response(false, "Invalid Credentials", null, webRequest.responseCode); }
+                if (responseCode == 401) { return new Response(false, "Invalid Credentials", null, responseCode); }
 
                 if (webRequest.GetResponseHeaders() == null)
                 {
-                    return new Response(false, "Device Unavailable", null, webRequest.responseCode);
+                    return new Response(false, "Device Unavailable", null, responseCode);
                 }
 
                 string responseHeaders = webRequest.GetResponseHeaders().Aggregate(string.Empty, (current, header) => $"\n{header.Key}: {header.Value}");
-                string downloadHandlerText = webRequest.downloadHandler?.text;
-                Debug.LogError($"REST Error: {webRequest.responseCode}\n{downloadHandlerText}{responseHeaders}");
-                return new Response(false, $"{responseHeaders}\n{downloadHandlerText}", webRequest.downloadHandler?.data, webRequest.responseCode);
+                string downloadHandlerText = await ResponseUtils.BytesToString(downloadHandlerDataAction.Invoke());
+
+                Debug.LogError($"REST Error: {responseCode}\n{downloadHandlerText}{responseHeaders}");
+                return new Response(false, $"{responseHeaders}\n{downloadHandlerText}", downloadHandlerDataAction.Invoke(), responseCode);
             }
             if (readResponseData)
             {
-                return new Response(true, webRequest.downloadHandler?.text, webRequest.downloadHandler?.data, webRequest.responseCode);
+                return new Response(true, await ResponseUtils.BytesToString(downloadHandlerDataAction.Invoke()), downloadHandlerDataAction.Invoke(), responseCode);
             }
             else // This option can be used only if action will be triggered in the same scope as the webrequest
             {
-                return new Response(true, () => webRequest.downloadHandler?.text, () => webRequest.downloadHandler?.data, webRequest.responseCode);
+                return new Response(true, downloadHandlerDataAction, responseCode);
             }
         }
     }
