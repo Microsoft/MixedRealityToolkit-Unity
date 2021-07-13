@@ -23,7 +23,7 @@ namespace Microsoft.MixedReality.Toolkit.Tests
 {
     public class DialogTests : BasePlayModeTests
     {
-        // SDK/Features/UX/Prefabs/Slate/Slate.prefab
+        // SDK/Features/UX/Prefabs/Dialog/DialogSmall_192x96.prefab
         private const string smallDialogPrefabAssetGuid = "8e686c90124b8e14cbf8093893109e9a";
         private static readonly string slatePrefabAssetPath = AssetDatabase.GUIDToAssetPath(smallDialogPrefabAssetGuid);
 

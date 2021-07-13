@@ -159,7 +159,18 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
         /// </summary>
         public int Rows
         {
-            get { return rows; }
+            get 
+            {
+                if (Layout == LayoutOrder.Horizontal)
+                {
+                    return 1;
+                }
+                else if (Layout == LayoutOrder.Vertical)
+                {
+                    return NodeList.Count;
+                }
+                return rows; 
+            }
             set
             {
                 if (Layout == LayoutOrder.ColumnThenRow)
@@ -181,7 +192,18 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
         /// </summary>
         public int Columns
         {
-            get { return columns; }
+            get 
+            {
+                if (Layout == LayoutOrder.Vertical)
+                {
+                    return 1;
+                }
+                else if (Layout == LayoutOrder.Horizontal)
+                {
+                    return NodeList.Count;
+                }
+                return columns; 
+            }
             set
             {
                 if (Layout == LayoutOrder.RowThenColumn)
@@ -227,7 +249,13 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
         /// <summary>
         /// Total Height of collection
         /// </summary>
-        public float Height => rows * CellHeight;
+        public float Height => Rows * CellHeight;
+
+        private Vector3 center = Vector3.zero;
+        /// <summary>
+        /// Center of the collection
+        /// </summary>
+        public Vector3 Center => center;
 
         /// <summary>
         /// Reference mesh to use for rendering the sphere layout
@@ -375,6 +403,10 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
             {
                 startOffsetY = anchorAlongAxis ? (yMax - 0.5f) * CellHeight : yMax * CellHeight;
             }
+
+            center.x = -startOffsetX + 0.5f * Width;
+            center.y = startOffsetY - 0.5f * Height;
+
             float alignmentOffsetX = 0;
             float alignmentOffsetY = 0;
 

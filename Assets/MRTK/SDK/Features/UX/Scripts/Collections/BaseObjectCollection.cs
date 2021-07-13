@@ -187,6 +187,11 @@ namespace Microsoft.MixedReality.Toolkit.Utilities
             return false;
         }
 
+        public void OnValidate()
+        {
+            UpdateCollection();
+        }
+
         /// <summary>
         /// Implement for laying out all children when UpdateCollection is called.
         /// </summary>
