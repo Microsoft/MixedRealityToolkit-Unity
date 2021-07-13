@@ -34,6 +34,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
             }
         }
 
+        /// <summary>
+        /// Accessor for the minimum scale along all three axes.
+        /// </summary>
+        public Vector3 ScaleMinimumVector => minimumScale;
+
         [SerializeField]
         [Tooltip("Maximum scaling allowed")]
         private float scaleMaximum = 2f;
@@ -52,6 +57,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 SetScaleLimits();
             }
         }
+
+        /// <summary>
+        /// Accessor for the maximum scale along all three axes.
+        /// </summary>
+        public Vector3 ScaleMaximumVector => maximumScale;
 
         [SerializeField]
         [Tooltip("Min/max scaling relative to initial scale if true")]

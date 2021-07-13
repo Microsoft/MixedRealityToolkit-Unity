@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.MixedReality.Toolkit.Physics;
+using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -73,6 +72,29 @@ namespace Microsoft.MixedReality.Toolkit
 
                 return maxResult.RaycastResult;
             }
+        }
+
+        /// <summary>
+        /// Bubbles up an event to the parents of the root game object if the event data is not already used.
+        /// </summary>
+        /// <typeparam name="T">The EventFunction type.</typeparam>
+        /// <param name="root">Events start executing on the parent of this game object.</param>
+        /// <param name="eventData">Data associated with the Executing event.</param>
+        /// <param name="callbackFunction">Function to execute on the gameObject components.</param>
+        /// <returns>GameObject that handled the event</returns>
+        public static GameObject ExecuteHierarchyUpward<T>(GameObject root, BaseEventData eventData, ExecuteEvents.EventFunction<T> callbackFunction) where T : IEventSystemHandler
+        {
+            if (!eventData.used && root != null)
+            {
+                var parent = root.transform.parent;
+
+                if (parent != null)
+                {
+                    return ExecuteEvents.ExecuteHierarchy(parent.gameObject, eventData, callbackFunction);
+                }
+            }
+
+            return null;
         }
     }
 }
