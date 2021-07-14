@@ -71,7 +71,7 @@ MonoBehaviour:
   requiresActionBeforeEnabling: 1
   overrideGlobalPointerExtent: 0
   pointerExtent: 10
-  defaultPointerExtent: 10
+  defaultPointerExtent: 1
   sphereCastRadius: 0.1
   hideCursorWhenInactive: 1
   movementThresholdToUnHide: 0.5
