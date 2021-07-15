@@ -18,6 +18,16 @@ namespace Microsoft.MixedReality.Toolkit.UI
     public class FollowMeToggle : MonoBehaviour
     {
         /// <summary>
+        /// An enum specifying how the optional interactable should behave once the FollowMe behavior was changed.
+        /// </summary>
+        public enum FollowMeBehaviorToInteractablesToggleState
+        {
+            ToggledWhenFollowing,
+            UntoggledWhenFollowing,
+            Manual
+        }
+
+        /// <summary>
         /// An optional object for visualizing the 'Follow Me' mode state.
         /// </summary>
         public GameObject VisualizationObject
@@ -42,6 +52,19 @@ namespace Microsoft.MixedReality.Toolkit.UI
         [SerializeField]
         [Tooltip("An optional Interactable to select/deselect when toggling the follow behavior.")]
         private Interactable interactableObject = null;
+
+        /// <summary>
+        /// A way to indicate how should interactable react to the follow behavior state.
+        /// </summary>
+        public FollowMeBehaviorToInteractablesToggleState ButtonBehavior
+        {
+            get { return buttonBehavior; }
+            set { buttonBehavior = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Should following be automatically enabled when the user is further than a certain distance away?")]
+        private FollowMeBehaviorToInteractablesToggleState buttonBehavior = FollowMeBehaviorToInteractablesToggleState.ToggledWhenFollowing;
 
         /// <summary>
         /// Should following be automatically enabled when the user is further than a certain distance away?
@@ -191,9 +214,19 @@ namespace Microsoft.MixedReality.Toolkit.UI
                     visualizationObject.SetActive(follow);
                 }
 
-                if (interactableObject != null)
+                if (ButtonBehavior != FollowMeBehaviorToInteractablesToggleState.Manual)
                 {
-                    interactableObject.IsToggled = follow;
+                    bool buttonToggledState = follow;
+
+                    if (buttonBehavior == FollowMeBehaviorToInteractablesToggleState.UntoggledWhenFollowing)
+                    {
+                        buttonToggledState = !buttonToggledState;
+                    }
+
+                    if (interactableObject != null)
+                    {
+                        interactableObject.IsToggled = buttonToggledState;
+                    }
                 }
             }
         }
