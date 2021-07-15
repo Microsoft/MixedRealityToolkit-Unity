@@ -421,7 +421,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 elasticsManager.InitializeElastics(HostTransform);
             }
         }
-        private void Start()
+        protected virtual void Start()
         {
             rigidBody = HostTransform.GetComponent<Rigidbody>();
             if (constraintsManager == null && EnableConstraints)
@@ -572,7 +572,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
         #region Hand Event Handlers
 
         /// <inheritdoc />
-        public void OnPointerDown(MixedRealityPointerEventData eventData)
+        public virtual void OnPointerDown(MixedRealityPointerEventData eventData)
         {
             if (eventData.used ||
                     (!allowFarManipulation && eventData.Pointer as IMixedRealityNearPointer == null))
@@ -625,7 +625,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
             }
         }
 
-        public void OnPointerDragged(MixedRealityPointerEventData eventData)
+        public virtual void OnPointerDragged(MixedRealityPointerEventData eventData)
         {
             // Call manipulation updated handlers
             if (IsOneHandedManipulationEnabled)
@@ -639,7 +639,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
         }
 
         /// <inheritdoc />
-        public void OnPointerUp(MixedRealityPointerEventData eventData)
+        public virtual void OnPointerUp(MixedRealityPointerEventData eventData)
         {
             // Get pointer data before they are removed from the map
             Vector3 grabPoint = GetPointersGrabPoint();
@@ -855,7 +855,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
         #region Unused Event Handlers
         /// <inheritdoc />
-        public void OnPointerClicked(MixedRealityPointerEventData eventData) { }
+        public virtual void OnPointerClicked(MixedRealityPointerEventData eventData) { }
         public void OnBeforeFocusChange(FocusEventData eventData) { }
 
         #endregion Unused Event Handlers
