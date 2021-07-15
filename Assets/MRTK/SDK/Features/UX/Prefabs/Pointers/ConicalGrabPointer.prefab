@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyOnSourceLost: 0
   useSourcePoseData: 0
+  useSourcePoseAsFallback: 1
   poseAction:
     id: 3
     description: Grip Pose

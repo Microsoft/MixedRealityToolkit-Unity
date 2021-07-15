@@ -17,6 +17,7 @@ namespace Microsoft.MixedReality.Toolkit.Input.Editor
 
         private SerializedProperty handedness;
         private SerializedProperty useSourcePoseData;
+        private SerializedProperty useSourcePoseAsFallback;
         private SerializedProperty poseAction;
         private SerializedProperty destroyOnSourceLost;
 
@@ -27,6 +28,7 @@ namespace Microsoft.MixedReality.Toolkit.Input.Editor
             synchronizationSettingsFoldout = SessionState.GetBool(SynchronizationSettingsKey, synchronizationSettingsFoldout);
             handedness = serializedObject.FindProperty("handedness");
             useSourcePoseData = serializedObject.FindProperty("useSourcePoseData");
+            useSourcePoseAsFallback = serializedObject.FindProperty("useSourcePoseAsFallback");
             poseAction = serializedObject.FindProperty("poseAction");
             destroyOnSourceLost = serializedObject.FindProperty("destroyOnSourceLost");
         }
@@ -74,6 +76,7 @@ namespace Microsoft.MixedReality.Toolkit.Input.Editor
 
                 if (!useSourcePoseData.boolValue)
                 {
+                    EditorGUILayout.PropertyField(useSourcePoseAsFallback);
                     EditorGUILayout.PropertyField(poseAction);
                 }
             }

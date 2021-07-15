@@ -59,16 +59,18 @@ namespace Microsoft.MixedReality.Toolkit.Input
 
                 Vector3 indexFingerPosition;
                 Quaternion indexFingerRotation;
+                // If we are unable to get the hand joint default to the Near Pointer's position and rotation
                 if (!TryGetJoint(TrackedHandJoint.IndexTip, out indexFingerPosition, out indexFingerRotation))
                 {
-                    indexFingerPosition = transform.position;
-                    indexFingerRotation = transform.rotation;
+                    indexFingerPosition = Pointer.Position;
+                    indexFingerRotation = Pointer.Rotation;
                 }
 
                 Vector3 indexKnucklePosition;
+                // If we are unable to get the hand joint default to the Near Pointer's position
                 if (!TryGetJoint(TrackedHandJoint.IndexKnuckle, out indexKnucklePosition, out _)) // knuckle rotation not used
                 {
-                    indexKnucklePosition = transform.position;
+                    indexKnucklePosition = Pointer.Position;
                 }
 
                 float distance = float.MaxValue;

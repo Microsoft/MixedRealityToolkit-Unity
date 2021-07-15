@@ -223,6 +223,77 @@ namespace Microsoft.MixedReality.Toolkit.Tests
             EnsurePointerStates(Handedness.Right, grabOff);
             EnsurePointerStates(Handedness.Left, grabOff);
         }
+        
+        /// <summary>
+        /// Tests that when source pose data is used the poke pointer and grab pointer are aligned in approximately the correct positions
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TestUseSourcePoseData()
+        {
+            TestHand rightHand = new TestHand(Handedness.Right);
+            yield return rightHand.Show(Vector3.zero);
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
+
+            PokePointer pokePointer = PointerUtils.GetPointer<PokePointer>(Handedness.Right);
+            Assert.IsNotNull(pokePointer);
+            SpherePointer grabPointer = PointerUtils.GetPointer<SpherePointer>(Handedness.Right);
+            Assert.IsNotNull(grabPointer);
+
+            pokePointer.UseSourcePoseData = true;
+            grabPointer.UseSourcePoseData = true;
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
+
+            yield return rightHand.Hide();
+            yield return rightHand.Show(Vector3.zero);
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
+
+
+            // The source pose is centered on the palm
+            MixedRealityPose palmPose;
+            HandJointUtils.TryGetJointPose(TrackedHandJoint.Palm, Handedness.Right, out palmPose);
+            // This offset value is derived from the PokePointer's sourcePoseOffset property
+            float pokePointerOffset = 0.075f; 
+            TestUtilities.AssertAboutEqual(pokePointer.Position, grabPointer.Position + pokePointer.transform.forward * pokePointerOffset, "pointer was not in the expected position");
+            TestUtilities.AssertAboutEqual(grabPointer.Position, palmPose.Position, "pointer was not in the expected position");
+        }
+
+        /// <summary>
+        /// Tests that when the source pose data is used as a fallback when the normal pose action is not raised
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TestUseSourcePoseDataAsFallback()
+        {
+            TestHand rightHand = new TestHand(Handedness.Right);
+            yield return rightHand.Show(Vector3.zero);
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
+
+            PokePointer pokePointer = PointerUtils.GetPointer<PokePointer>(Handedness.Right);
+            Assert.IsNotNull(pokePointer);
+            pokePointer.UseSourcePoseAsFallback = true;
+
+            SpherePointer grabPointer = PointerUtils.GetPointer<SpherePointer>(Handedness.Right);
+            Assert.IsNotNull(grabPointer);
+            grabPointer.UseSourcePoseAsFallback = true;
+
+            // Setting the pointer's pose action to a new input action is functionally equivalent to ensuring that an event is never raised of the pointer's desired pose action
+            // This makes it so it will have to use the source pose data as a fallback
+            pokePointer.PoseAction = new MixedRealityInputAction();
+            grabPointer.PoseAction = new MixedRealityInputAction();
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
+
+            yield return rightHand.Hide();
+            yield return rightHand.Show(Vector3.zero);
+            yield return PlayModeTestUtilities.WaitForInputSystemUpdate();
+
+            // The source pose is centered on the palm
+            MixedRealityPose palmPose;
+            HandJointUtils.TryGetJointPose(TrackedHandJoint.Palm, Handedness.Right, out palmPose);
+
+            // This offset value is derived from the PokePointer's sourcePoseOffset property
+            float pokePointerOffset = 0.075f;
+            TestUtilities.AssertAboutEqual(pokePointer.Position, grabPointer.Position + pokePointer.transform.forward * pokePointerOffset, "pointer was not in the expected position");
+            TestUtilities.AssertAboutEqual(grabPointer.Position, palmPose.Position, "pointer was not in the expected position");
+        }
 
         /// <summary>
         /// Tests that the teleport pointer functions as expected

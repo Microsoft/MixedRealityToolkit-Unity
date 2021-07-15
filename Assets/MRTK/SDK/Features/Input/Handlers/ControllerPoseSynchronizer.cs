@@ -12,6 +12,19 @@ namespace Microsoft.MixedReality.Toolkit.Input
     [AddComponentMenu("Scripts/MRTK/SDK/ControllerPoseSynchronizer")]
     public class ControllerPoseSynchronizer : InputSystemGlobalHandlerListener, IMixedRealityControllerPoseSynchronizer
     {
+        #region Helpers
+        protected bool SourcePoseDataUsable<T>(SourcePoseEventData<T> eventData)
+        {
+            return ((UseSourcePoseAsFallback && !poseActionDetected) || UseSourcePoseData) && eventData.SourceId == Controller?.InputSource.SourceId;
+        }
+
+
+        protected bool InputEventDataUsable<T>(InputEventData<T> eventData)
+        {
+            return !UseSourcePoseData && eventData.SourceId == Controller?.InputSource.SourceId && PoseAction == eventData.MixedRealityInputAction;
+        }
+        #endregion
+
         #region IMixedRealityControllerPoseSynchronizer Implementation
 
         /// <inheritdoc />
@@ -62,6 +75,24 @@ namespace Microsoft.MixedReality.Toolkit.Input
         }
 
         [SerializeField]
+        [Tooltip("Should the Transform's position use the source pose by default until the input handler events are received?")]
+        private bool useSourcePoseAsFallback = true;
+
+        /// <summary>
+        /// Should the Transform's position use the source pose by default until the input handler events are received?
+        /// </summary>
+        public bool UseSourcePoseAsFallback
+        {
+            get => useSourcePoseAsFallback;
+            set => useSourcePoseAsFallback = value;
+        }
+
+        /// <summary>
+        /// Tracks whether or not a pose action event has been fired is actively being used by the pointer
+        /// </summary>
+        private bool poseActionDetected;
+
+        [SerializeField]
         [Tooltip("The input action that will drive the Transform's pose, position, or rotation.")]
         private MixedRealityInputAction poseAction = MixedRealityInputAction.None;
 
@@ -101,6 +132,7 @@ namespace Microsoft.MixedReality.Toolkit.Input
             if (eventData.SourceId == Controller?.InputSource.SourceId &&
                 eventData.Controller?.ControllerHandedness == Handedness)
             {
+                poseActionDetected = false;
                 TrackingState = TrackingState.NotTracked;
 
                 if (DestroyOnSourceLost)
@@ -123,16 +155,29 @@ namespace Microsoft.MixedReality.Toolkit.Input
         public virtual void OnSourcePoseChanged(SourcePoseEventData<Vector2> eventData) { }
 
         /// <inheritdoc />
-        public virtual void OnSourcePoseChanged(SourcePoseEventData<Vector3> eventData) { }
+        public virtual void OnSourcePoseChanged(SourcePoseEventData<Vector3> eventData)
+        {
+            if (SourcePoseDataUsable(eventData))
+            {
+                TrackingState = eventData.Controller.TrackingState;
+                transform.position = eventData.SourceData;
+            }
+        }
 
         /// <inheritdoc />
-        public virtual void OnSourcePoseChanged(SourcePoseEventData<Quaternion> eventData) { }
+        public virtual void OnSourcePoseChanged(SourcePoseEventData<Quaternion> eventData)
+        {
+            if (SourcePoseDataUsable(eventData))
+            {
+                TrackingState = eventData.Controller.TrackingState;
+                transform.rotation = eventData.SourceData;
+            }
+        }
 
         /// <inheritdoc />
         public virtual void OnSourcePoseChanged(SourcePoseEventData<MixedRealityPose> eventData)
         {
-            if (UseSourcePoseData &&
-                eventData.SourceId == Controller?.InputSource.SourceId)
+            if (SourcePoseDataUsable(eventData))
             {
                 TrackingState = eventData.Controller.TrackingState;
                 transform.position = eventData.SourceData.Position;
@@ -159,43 +204,34 @@ namespace Microsoft.MixedReality.Toolkit.Input
         /// <inheritdoc />
         public virtual void OnInputChanged(InputEventData<Vector3> eventData)
         {
-            if (eventData.SourceId == Controller?.InputSource.SourceId)
+            if (InputEventDataUsable(eventData))
             {
-                if (!UseSourcePoseData &&
-                    PoseAction == eventData.MixedRealityInputAction)
-                {
-                    TrackingState = TrackingState.Tracked;
-                    transform.position = eventData.InputData;
-                }
+                poseActionDetected = true;
+                TrackingState = TrackingState.Tracked;
+                transform.position = eventData.InputData;
             }
         }
 
         /// <inheritdoc />
         public virtual void OnInputChanged(InputEventData<Quaternion> eventData)
         {
-            if (eventData.SourceId == Controller?.InputSource.SourceId)
+            if (InputEventDataUsable(eventData))
             {
-                if (!UseSourcePoseData &&
-                    PoseAction == eventData.MixedRealityInputAction)
-                {
-                    TrackingState = TrackingState.Tracked;
-                    transform.rotation = eventData.InputData;
-                }
+                poseActionDetected = true;
+                TrackingState = TrackingState.Tracked;
+                transform.rotation = eventData.InputData;
             }
         }
 
         /// <inheritdoc />
         public virtual void OnInputChanged(InputEventData<MixedRealityPose> eventData)
         {
-            if (eventData.SourceId == Controller?.InputSource.SourceId)
+            if (InputEventDataUsable(eventData))
             {
-                if (!UseSourcePoseData &&
-                    PoseAction == eventData.MixedRealityInputAction)
-                {
-                    TrackingState = TrackingState.Tracked;
-                    transform.position = eventData.InputData.Position;
-                    transform.rotation = eventData.InputData.Rotation;
-                }
+                poseActionDetected = true;
+                TrackingState = TrackingState.Tracked;
+                transform.position = eventData.InputData.Position;
+                transform.rotation = eventData.InputData.Rotation;
             }
         }
 

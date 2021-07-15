@@ -30,6 +30,12 @@ namespace Microsoft.MixedReality.Toolkit.Input
         /// </summary>
         private const int maximumTouchableVolumeSize = 1000;
 
+        /// <summary>
+        /// The offset that the poke pointer has from the source pose when the index finger pose is not available.
+        /// This value puts the pointer slightly in front of the source pose's origin, oriented according to the source pose's rotation
+        /// </summary>
+        private const float sourcePoseOffset = 0.075f;
+
         [SerializeField]
         [Tooltip("Maximum distance a which a touchable surface can be interacted with.")]
         protected float touchableDistance = 0.2f;
@@ -453,6 +459,17 @@ namespace Microsoft.MixedReality.Toolkit.Input
         }
 
         /// <inheritdoc />
+        public override void OnSourcePoseChanged(SourcePoseEventData<MixedRealityPose> eventData)
+        {
+            base.OnSourcePoseChanged(eventData);
+
+            if (SourcePoseDataUsable(eventData))
+            {
+                transform.position += sourcePoseOffset * transform.forward;
+            }
+        }
+
+        /// <inheritdoc />
         public override void OnInputDown(InputEventData eventData)
         {
             // Poke pointer should not respond when a button is pressed or hand is pinched
@@ -486,7 +503,7 @@ namespace Microsoft.MixedReality.Toolkit.Input
 
             if (closestProximityTouchable != null)
             {
-                Gizmos.DrawLine(transform.position, closestProximityTouchable.transform.position);
+                Gizmos.DrawLine(Position, closestProximityTouchable.transform.position);
             }
         }
     }
