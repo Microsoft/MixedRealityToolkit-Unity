@@ -1,2 +1,2 @@
 pygithub==1.55
-gitpython==3.1.41
+gitpython==3.1.52
